@@ -1,0 +1,50 @@
+model:
+  default: openrouter/auto
+  provider: openrouter
+  base_url: https://openrouter.ai/api/v1
+  api_mode: chat_completions
+
+agent:
+  max_turns: 60
+  reasoning_effort: medium
+
+auxiliary:
+  skills_hub:
+    provider: openrouter
+    model: deepseek/deepseek-v4-pro
+
+delegation:
+  model: deepseek/deepseek-v4-pro
+  provider: openrouter
+  max_iterations: 50
+  max_concurrent_children: 5
+
+compression:
+  enabled: true
+  threshold: 0.5
+  target_ratio: 0.2
+  protect_last_n: 20
+  protect_first_n: 3
+
+security:
+  redact_secrets: true
+
+mcp_servers:
+  atlassian:
+    url: https://mcp.atlassian.com/v1/mcp
+    auth: oauth
+  granola:
+    url: https://mcp.granola.ai/mcp
+    auth: oauth
+  slack:
+    url: https://mcp.slack.com/mcp
+    auth: oauth
+    oauth:
+      client_id: '1451718280373.11571103729251'
+      redirect_port: 8932
+  metabase:
+    url: https://analytics-panel.genialcare.com.br/api/mcp
+    auth: oauth
+    headers:
+      User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)
+        AppleWebKit/537.36

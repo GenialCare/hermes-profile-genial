@@ -1,0 +1,37 @@
+name: Release distribution
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  build-release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Build archives (versioned + latest)
+        run: |
+          mkdir -p dist
+          VERSION="${GITHUB_REF_NAME#v}"
+          git archive --format=zip    --prefix=hermes-genial/ -o "dist/hermes-genial-v${VERSION}.zip"     "$GITHUB_REF_NAME"
+          git archive --format=tar.gz --prefix=hermes-genial/ -o "dist/hermes-genial-v${VERSION}.tar.gz"  "$GITHUB_REF_NAME"
+          cp "dist/hermes-genial-v${VERSION}.zip"    dist/hermes-genial-latest.zip
+          cp "dist/hermes-genial-v${VERSION}.tar.gz" dist/hermes-genial-latest.tar.gz
+
+      - name: Create release and upload assets
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            dist/hermes-genial-v*.zip
+            dist/hermes-genial-v*.tar.gz
+            dist/hermes-genial-latest.zip
+            dist/hermes-genial-latest.tar.gz
+            install-genial.sh
+            install-genial.ps1
+          generate_release_notes: true
