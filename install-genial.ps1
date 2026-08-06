@@ -15,8 +15,8 @@
 # ============================================================================
 $ErrorActionPreference = "Stop"
 
-$BaseUrl     = "https://github.com/matheusca/hermes-profile-genial/releases/latest/download"
-$ProfileName = "genial"
+$BaseUrl     = if ($env:GENIAL_BASE_URL) { $env:GENIAL_BASE_URL } else { "https://github.com/matheusca/hermes-profile-genial/releases/latest/download" }
+$ProfileName = if ($env:GENIAL_PROFILE_NAME) { $env:GENIAL_PROFILE_NAME } else { "genial" }
 $Archive     = "hermes-genial-latest.zip"
 $McpList     = @("atlassian","granola","slack","metabase")
 

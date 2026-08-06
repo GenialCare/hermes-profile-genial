@@ -15,8 +15,8 @@
 # ============================================================================
 set -euo pipefail
 
-BASE_URL="https://github.com/matheusca/hermes-profile-genial/releases/latest/download"
-PROFILE_NAME="genial"
+BASE_URL="${GENIAL_BASE_URL:-https://github.com/matheusca/hermes-profile-genial/releases/latest/download}"
+PROFILE_NAME="${GENIAL_PROFILE_NAME:-genial}"
 ARCHIVE="hermes-genial-latest.tar.gz"
 MCP_LIST="atlassian granola slack metabase"
 
