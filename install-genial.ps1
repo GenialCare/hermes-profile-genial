@@ -3,7 +3,7 @@
 # Windows (PowerShell)
 #
 # Uso:
-#   iex (irm https://github.com/matheusca/hermes-profile-genial/releases/latest/download/install-genial.ps1)
+#   iex (irm https://github.com/GenialCare/hermes-profile-genial/releases/latest/download/install-genial.ps1)
 #
 # O que faz:
 #   1. Instala o Hermes Agent (se não estiver instalado; o instalador do
@@ -15,7 +15,7 @@
 # ============================================================================
 $ErrorActionPreference = "Stop"
 
-$BaseUrl     = if ($env:GENIAL_BASE_URL) { $env:GENIAL_BASE_URL } else { "https://github.com/matheusca/hermes-profile-genial/releases/latest/download" }
+$BaseUrl     = if ($env:GENIAL_BASE_URL) { $env:GENIAL_BASE_URL } else { "https://github.com/GenialCare/hermes-profile-genial/releases/latest/download" }
 $ProfileName = if ($env:GENIAL_PROFILE_NAME) { $env:GENIAL_PROFILE_NAME } else { "genial" }
 $Archive     = "hermes-genial-latest.zip"
 $McpList     = @("atlassian","granola","slack","metabase")

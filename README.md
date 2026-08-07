@@ -24,13 +24,13 @@ Escolha o comando do seu sistema, cole no Terminal/PowerShell e pressione Enter:
 **macOS / Linux**
 
 ```bash
-curl -fsSL https://github.com/matheusca/hermes-profile-genial/releases/latest/download/install-genial.sh | bash
+curl -fsSL https://github.com/GenialCare/hermes-profile-genial/releases/latest/download/install-genial.sh | bash
 ```
 
 **Windows (PowerShell)**
 
 ```powershell
-iex (irm https://github.com/matheusca/hermes-profile-genial/releases/latest/download/install-genial.ps1)
+iex (irm https://github.com/GenialCare/hermes-profile-genial/releases/latest/download/install-genial.ps1)
 ```
 
 O script faz tudo: instala o Hermes (se preciso), instala o profile `genial`, define como padrão, salva sua chave OpenRouter e autentica os MCPs um a um no browser.

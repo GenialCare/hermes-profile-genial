@@ -4,7 +4,7 @@
 # macOS / Linux
 #
 # Uso:
-#   curl -fsSL https://github.com/matheusca/hermes-profile-genial/releases/latest/download/install-genial.sh | bash
+#   curl -fsSL https://github.com/GenialCare/hermes-profile-genial/releases/latest/download/install-genial.sh | bash
 #
 # O que faz:
 #   1. Instala o Hermes Agent (se não estiver instalado)
@@ -15,7 +15,7 @@
 # ============================================================================
 set -euo pipefail
 
-BASE_URL="${GENIAL_BASE_URL:-https://github.com/matheusca/hermes-profile-genial/releases/latest/download}"
+BASE_URL="${GENIAL_BASE_URL:-https://github.com/GenialCare/hermes-profile-genial/releases/latest/download}"
 PROFILE_NAME="${GENIAL_PROFILE_NAME:-genial}"
 ARCHIVE="hermes-genial-latest.tar.gz"
 MCP_LIST="atlassian granola slack metabase"
