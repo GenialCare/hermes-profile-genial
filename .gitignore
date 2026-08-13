@@ -17,6 +17,9 @@ processes.json
 auth.lock
 active_profile
 .update_check
+.mcp-discovery.lock
+skills/.hub/
+skills/.bundled_manifest
 
 # User data — NEVER commit
 memories/
@@ -25,6 +28,7 @@ logs/
 plans/
 workspace/
 home/
+cron/
 
 # Caches & generated artifacts
 image_cache/
