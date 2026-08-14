@@ -73,6 +73,7 @@ Rodar o script de novo é seguro:
 ## FAQ
 
 - **Não tenho chave OpenRouter:** peça o convite (invite) com o Matheus Cáceres no canal `#construindo-com-ia`. O script exige a chave para continuar.
+- **O script disse que a chave não foi informada, mas eu digitei:** rode um terminal atualizado — versões antigas do script (antes de 13/ago) tinham um bug em que `curl ... | bash` fazia o `read` da chave ler o próprio código do script em vez do teclado. Já corrigido; baixe o comando de novo do início desta página.
 - **O login de um MCP falhou:** rode `hermes mcp login <nome>` (atlassian, granola, slack ou metabase).
 - **Quero trocar o modelo:** `hermes config set model.default <modelo>` (ex.: `z-ai/glm-5.2`).
 - **Quero ver o que está configurado:** `hermes config get model.default`, `hermes mcp list`.

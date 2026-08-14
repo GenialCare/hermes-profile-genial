@@ -25,9 +25,26 @@ say()  { printf '\n\033[1;32m==>\033[0m %s\n' "$*"; }
 warn() { printf '\n\033[1;33m==>\033[0m %s\n' "$*"; }
 err()  { printf '\n\033[1;31m==>\033[0m %s\n' "$*"; }
 
+# Detecta se há um TTY de verdade utilizável (não basta checar permissões do
+# arquivo /dev/tty — em ambientes headless ele pode existir mas não abrir).
+HAS_TTY=0
+if { exec 3< /dev/tty; } 2>/dev/null; then
+  exec 3<&-
+  HAS_TTY=1
+fi
+
 ask_yes() { # $1 = pergunta; retorna 0 (sim) ou 1 (não)
   local resp resp_lower
-  read -r -p "$1 [s/N] " resp
+  # IMPORTANTE: quando o script roda via "curl ... | bash", o stdin já está
+  # ocupado pelo próprio stream do script — "read" sem </dev/tty leria pedaços
+  # do código-fonte em vez de esperar o teclado. Forçamos /dev/tty para ler do
+  # terminal de verdade, com fallback para stdin normal se não houver TTY
+  # (ex.: execução automatizada/CI, onde perguntas interativas não fazem sentido).
+  if [[ "$HAS_TTY" -eq 1 ]]; then
+    read -r -p "$1 [s/N] " resp < /dev/tty
+  else
+    read -r -p "$1 [s/N] " resp
+  fi
   resp_lower=$(printf '%s' "$resp" | tr '[:upper:]' '[:lower:]')
   [[ "$resp_lower" =~ ^(s|sim|y|yes)$ ]]
 }
@@ -60,7 +77,11 @@ hermes config set delegation.provider openrouter
 # Chave OpenRouter (obrigatória)
 ENV_FILE="$HERMES_HOME_DIR/.env"
 if ! grep -q '^OPENROUTER_API_KEY=.' "$ENV_FILE" 2>/dev/null; then
-  read -rsp "Cole sua chave OpenRouter (sk-or-...) e pressione Enter: " KEY
+  if [[ "$HAS_TTY" -eq 1 ]]; then
+    read -rsp "Cole sua chave OpenRouter (sk-or-...) e pressione Enter: " KEY < /dev/tty
+  else
+    read -rsp "Cole sua chave OpenRouter (sk-or-...) e pressione Enter: " KEY
+  fi
   echo
   if [[ -n "${KEY:-}" ]]; then
     echo "OPENROUTER_API_KEY=$KEY" >> "$ENV_FILE"
