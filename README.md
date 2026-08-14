@@ -1,81 +1,90 @@
-# Hermes Profile Genial Care
+# Hermes Genial Care — Facilitador de Configuração
 
-Distribuição oficial do **Hermes Agent** para a Genial Care — um profile pronto com OpenRouter, MCPs corporativos e as skills bundled do Hermes.
+Scripts para configurar o **Hermes Agent** padrão da sua máquina com o setup da Genial Care — provider LLM, MCPs corporativos, browser connect, busca e Google Workspace.
 
 ## O que é
 
-Este repositório é uma *profile distribution* do Hermes Agent. Quem instala recebe um agente completo e configurado: modelo via OpenRouter (roteamento automático), conexões MCP (Atlassian, Slack, Granola e Metabase) e o catálogo de skills padrão — sem precisar configurar nada manualmente.
+Este repositório **não distribui um profile**. Os scripts abaixo configuram o Hermes que você já usa no dia a dia (`~/.hermes`), ajustando `config.yaml` com `hermes config set` e adicionando MCPs com `hermes mcp add` — sempre pela CLI oficial, nunca editando arquivos à mão.
 
-- **Dados pessoais nunca saem da sua máquina:** memórias, sessões, chaves de API e configurações locais ficam só com você.
-- **Sem git necessário para instalar:** o instalador baixa um arquivo pronto e faz tudo.
+- Rodar de novo é seguro: os scripts são idempotentes.
+- Você decide o que configurar: cada MCP e o Google Workspace são perguntados individualmente.
+- Suas skills pessoais, memórias e sessões nunca são tocadas.
+
+> Procurando a versão antiga (distribuição de profile)? Ela está preservada na branch [`profile-distribution`](https://github.com/GenialCare/hermes-profile-genial/tree/profile-distribution).
 
 ## Pré-requisitos
 
-- **Hermes Desktop** (recomendado): baixe em [hermes-agent.nousresearch.com](https://hermes-agent.nousresearch.com/) — macOS (DMG) ou Windows (EXE). O instalador cria o CLI junto.
-- Alternativa via terminal:
+- **Hermes Agent instalado.** Baixe o Hermes Desktop em [hermes-agent.nousresearch.com](https://hermes-agent.nousresearch.com/) (macOS `.dmg`, Windows `.exe`) ou instale via terminal:
   - macOS/Linux: `curl -fsSL https://hermes-agent.nousresearch.com/install.sh | bash`
   - Windows (PowerShell): `iex (irm https://hermes-agent.nousresearch.com/install.ps1)`
-- **Chave OpenRouter:** solicite no canal `#construindo-com-ia` no Slack.
+- **Chave OpenRouter.** Solicite no canal **#construindo-com-ia** no Slack.
 
-## Instalação rápida
+Os scripts verificam se o Hermes está instalado e param com instruções caso não esteja — eles não instalam o Hermes por você.
 
-Escolha o comando do seu sistema, cole no Terminal/PowerShell e pressione Enter:
+## Como usar
+
+Copie o comando do seu sistema, cole no Terminal/PowerShell e pressione Enter:
 
 **macOS / Linux**
 
 ```bash
-curl -fsSL https://github.com/GenialCare/hermes-profile-genial/releases/latest/download/install-genial.sh | bash
+curl -fsSL https://raw.githubusercontent.com/GenialCare/hermes-profile-genial/main/install-genial.sh | bash
 ```
 
 **Windows (PowerShell)**
 
 ```powershell
-iex (irm https://github.com/GenialCare/hermes-profile-genial/releases/latest/download/install-genial.ps1)
+iex (irm https://raw.githubusercontent.com/GenialCare/hermes-profile-genial/main/install-genial.ps1)
 ```
 
-O script faz tudo: instala o Hermes (se preciso), instala o profile `genial`, define como padrão, salva sua chave OpenRouter e autentica os MCPs um a um no browser.
+## O que o script configura
 
-## O que vem configurado
-
-| Item | Configuração |
+| Item | O que acontece |
 | --- | --- |
-| Modelo padrão | `openrouter/auto` (roteamento automático do OpenRouter) |
+| Modelo padrão | `anthropic/claude-sonnet-5` via OpenRouter |
 | Tarefas auxiliares/delegação | `deepseek/deepseek-v4-pro` |
-| MCPs | Atlassian, Slack, Granola, Metabase (OAuth por usuário) |
-| Skills | Catálogo bundled do Hermes |
-| Segurança | Redação automática de segredos ativa |
+| MCPs corporativos | Pergunta individual: Atlassian, Slack, Granola, Metabase — só configura e autentica os que você usar |
+| Browser | Conecta via CDP (Chrome com perfil isolado em `~/.hermes/chrome-debug`; login persiste) |
+| Busca | Ativa o DuckDuckGo (`ddgs`) como backend de busca |
+| Google Workspace | Pergunta se você usa; se sim, instala o `gws` CLI (a autenticação é feita à parte — veja abaixo) |
 
-## Atualizações
+Sua chave OpenRouter é salva em `~/.hermes/.env` (nunca commitada, nunca compartilhada).
 
-Basta rodar o mesmo comando de instalação de novo — ou, se preferir:
+## Google Workspace (Drive, Gmail, Calendar, Sheets, Docs)
 
-```bash
-hermes profile update genial
-```
+O script só instala o `gws` CLI. A autenticação usa um arquivo de credenciais da empresa disponível na documentação interna:
 
-O que **é preservado** em atualizações: seu `config.yaml` (modelo/provider que você escolher), `.env`, memórias, sessões e qualquer arquivo em `local/`.
+1. Acesse a página do Confluence (Parte 4 — link com a equipe/canal #construindo-com-ia).
+2. Baixe o `client_secret.json` anexado à página.
+3. Salve em `~/.config/gws/client_secret.json` (macOS/Linux) ou `%USERPROFILE%\.config\gws\client_secret.json` (Windows).
+4. Rode `gws auth login`.
+5. No Hermes, envie: `/google-workspace eu já configurei o gws por fora, então configure a skill para utilizar essas credenciais no hermes`.
 
-O que **é substituído** (padrão da empresa): `SOUL.md`, `skills/`, `cron/` e o restante da distribuição.
+## Idempotência e re-execução
 
-> Skills pessoais devem ser instaladas no seu profile **default** (não no `genial`) — assim nunca são perdidas em atualizações.
+Rodar o script de novo é seguro:
+- Perguntas já respondidas com "não" voltam a ser perguntadas (você pode mudar de ideia).
+- A chave OpenRouter não é pedida de novo se já existir no `.env`.
+- MCPs já autenticados não perdem o token.
+- `hermes profile update` **não se aplica** aqui — não existe profile.
+
+## FAQ
+
+- **Não tenho chave OpenRouter:** peça no canal `#construindo-com-ia`.
+- **O login de um MCP falhou:** rode `hermes mcp login <nome>` (atlassian, granola, slack ou metabase).
+- **Quero trocar o modelo:** `hermes config set model.default <modelo>` (ex.: `z-ai/glm-5.2`).
+- **Quero ver o que está configurado:** `hermes config get model.default`, `hermes mcp list`.
+- **Dúvidas:** canal `#construindo-com-ia` no Slack.
 
 ## Como contribuir
 
 1. Crie uma branch a partir da `main`.
-2. Faça suas mudanças (config, skills, scripts, docs).
-3. Abra um PR com título em **Conventional Commits** (ex.: `feat(config): adiciona novo MCP`).
+2. Faça suas mudanças nos scripts, README ou workflow.
+3. Abra um PR com título em **Conventional Commits** (ex.: `fix(script): corrige detecção do Chrome no Linux`).
 4. A CI valida automaticamente: mensagens de commit e título do PR devem seguir Conventional Commits (`feat, fix, docs, refactor, chore, test, perf, style, build, ci, revert`).
-5. Ao mudar o conteúdo da distribuição, incremente a versão em `distribution.yaml`.
-6. **Releases:** a cada tag `vX.Y.Z` criada, o GitHub Actions gera automaticamente os arquivos (`zip`/`tar.gz` com a versão e `-latest`) e os scripts de instalação.
+5. Antes de abrir o PR:
+   - `bash -n install-genial.sh` (sintaxe válida)
+   - Teste o fluxo com um `HERMES_HOME` temporário — veja `SKIP_MCP_LOGIN=1` e `SKIP_BROWSER=1` no início do script para pular etapas interativas durante testes
+   - Mudanças em `install-genial.ps1` precisam ser testadas em uma máquina Windows real antes do merge
 
-```bash
-# Exemplo de release
-git tag v0.2.0 && git push origin v0.2.0
-```
-
-## FAQ
-
-- **Não tenho chave OpenRouter:** envie uma mensagem no canal `#construindo-com-ia` pedindo acesso.
-- **O login de um MCP falhou:** repita com `hermes -p genial mcp login <nome>` (atlassian, granola, slack ou metabase).
-- **Quero outro modelo:** `hermes -p genial config set model.default <modelo>` (ex.: `z-ai/glm-5.2`).
-- **Dúvidas:** canal `#construindo-com-ia` no Slack.
+Veja `AGENTS.md` para as regras completas de contribuição.

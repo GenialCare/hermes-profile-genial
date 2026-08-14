@@ -81,7 +81,7 @@ $McpSlackUrl     = "https://mcp.slack.com/mcp"
 $McpMetabaseUrl  = "https://analytics-panel.genialcare.com.br/api/mcp"
 
 function Setup-Mcp($Name, $Url) {
-    if (Ask-Yes "Voce usa o MCP $Name?") {
+    if (Ask-Yes "Voce usa o MCP ${Name}?") {
         Say "Configurando MCP $Name..."
         hermes mcp add $Name --url $Url --auth oauth
         switch ($Name) {
@@ -174,7 +174,7 @@ if (-not $CdpUp) {
         Write-Host "  chrome.exe --remote-debugging-port=9222 --user-data-dir=$HermesHomeDir\chrome-debug"
         Write-Host "e depois rode /browser connect dentro do Hermes."
     }
-} else {
+} elseif (-not $env:SKIP_BROWSER) {
     Say "Chrome ja esta respondendo na porta 9222."
 }
 Say "Browser conectado via CDP em 127.0.0.1:9222. Faca login uma vez na janela do Chrome - ele persiste entre sessoes."
