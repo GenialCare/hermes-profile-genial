@@ -1,7 +1,18 @@
 # Credenciais & segredos — NUNCA commitar
 .env
+.env.*
 .env.EXAMPLE
 auth.json
+!.env.example
+!.env.sample
+
+# Credenciais e tokens do Google — NUNCA commitar
+google_client_secret.json
+google_token.json
+google_token_*.json
+*client_secret*.json
+service_account*.json
+credentials.json
 
 # Estado e runtime do Hermes (se alguém testar localmente dentro deste diretório)
 state.db
