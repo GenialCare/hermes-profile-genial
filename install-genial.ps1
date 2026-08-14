@@ -66,7 +66,9 @@ if (-not $HasKey) {
         Add-Content -Path $EnvFile -Value "OPENROUTER_API_KEY=$Key"
         Say "Chave salva em $EnvFile"
     } else {
-        Warn "Sem chave agora? Adicione depois em $EnvFile (ou defina a variavel OPENROUTER_API_KEY)."
+        Err "Chave OpenRouter nao informada. Sem ela, o Hermes nao funciona."
+        Say "Peca o convite (invite) do OpenRouter para o Matheus Caceres no canal #construindo-com-ia e rode este script de novo."
+        exit 1
     }
 } else {
     Say "Chave OpenRouter ja configurada."

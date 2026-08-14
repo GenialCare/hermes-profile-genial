@@ -17,7 +17,7 @@ Este repositório **não distribui um profile**. Os scripts abaixo configuram o 
 - **Hermes Agent instalado.** Baixe o Hermes Desktop em [hermes-agent.nousresearch.com](https://hermes-agent.nousresearch.com/) (macOS `.dmg`, Windows `.exe`) ou instale via terminal:
   - macOS/Linux: `curl -fsSL https://hermes-agent.nousresearch.com/install.sh | bash`
   - Windows (PowerShell): `iex (irm https://hermes-agent.nousresearch.com/install.ps1)`
-- **Chave OpenRouter.** Solicite no canal **#construindo-com-ia** no Slack.
+- **Chave OpenRouter (obrigatória).** Solicite o convite (invite) com o **Matheus Cáceres** no canal **#construindo-com-ia** no Slack, antes de rodar o script. Sem a chave, o script para e não configura nada.
 
 Os scripts verificam se o Hermes está instalado e param com instruções caso não esteja — eles não instalam o Hermes por você.
 
@@ -64,13 +64,13 @@ O script só instala o `gws` CLI. A autenticação usa um arquivo de credenciais
 
 Rodar o script de novo é seguro:
 - Perguntas já respondidas com "não" voltam a ser perguntadas (você pode mudar de ideia).
-- A chave OpenRouter não é pedida de novo se já existir no `.env`.
+- A chave OpenRouter é obrigatória apenas na primeira vez — não é pedida de novo se já existir no `.env`.
 - MCPs já autenticados não perdem o token.
 - `hermes profile update` **não se aplica** aqui — não existe profile.
 
 ## FAQ
 
-- **Não tenho chave OpenRouter:** peça no canal `#construindo-com-ia`.
+- **Não tenho chave OpenRouter:** peça o convite (invite) com o Matheus Cáceres no canal `#construindo-com-ia`. O script exige a chave para continuar.
 - **O login de um MCP falhou:** rode `hermes mcp login <nome>` (atlassian, granola, slack ou metabase).
 - **Quero trocar o modelo:** `hermes config set model.default <modelo>` (ex.: `z-ai/glm-5.2`).
 - **Quero ver o que está configurado:** `hermes config get model.default`, `hermes mcp list`.

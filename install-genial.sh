@@ -57,7 +57,7 @@ hermes config set auxiliary.skills_hub.model deepseek/deepseek-v4-pro
 hermes config set delegation.model deepseek/deepseek-v4-pro
 hermes config set delegation.provider openrouter
 
-# Chave OpenRouter
+# Chave OpenRouter (obrigatória)
 ENV_FILE="$HERMES_HOME_DIR/.env"
 if ! grep -q '^OPENROUTER_API_KEY=.' "$ENV_FILE" 2>/dev/null; then
   read -rsp "Cole sua chave OpenRouter (sk-or-...) e pressione Enter: " KEY
@@ -66,7 +66,9 @@ if ! grep -q '^OPENROUTER_API_KEY=.' "$ENV_FILE" 2>/dev/null; then
     echo "OPENROUTER_API_KEY=$KEY" >> "$ENV_FILE"
     say "Chave salva em $ENV_FILE"
   else
-    warn "Sem chave agora? Adicione depois em $ENV_FILE (ou exporte OPENROUTER_API_KEY)."
+    err "Chave OpenRouter não informada. Sem ela, o Hermes não funciona."
+    say "Peça o convite (invite) do OpenRouter para o Matheus Cáceres no canal #construindo-com-ia e rode este script de novo."
+    exit 1
   fi
 else
   say "Chave OpenRouter já configurada."
