@@ -17,7 +17,7 @@ Este repositório **não distribui um profile**. Os scripts abaixo configuram o 
 - **Hermes Agent instalado.** Baixe o Hermes Desktop em [hermes-agent.nousresearch.com](https://hermes-agent.nousresearch.com/) (macOS `.dmg`, Windows `.exe`) ou instale via terminal:
   - macOS/Linux: `curl -fsSL https://hermes-agent.nousresearch.com/install.sh | bash`
   - Windows (PowerShell): `iex (irm https://hermes-agent.nousresearch.com/install.ps1)`
-- **Chave OpenRouter (obrigatória).** Solicite o convite (invite) com o **Matheus Cáceres** no canal **#construindo-com-ia** no Slack, antes de rodar o script. Sem a chave, o script para e não configura nada.
+- **Chave OpenRouter (obrigatória).** Solicite o convite (invite) com o **Matheus Cáceres** no canal **#construindo-com-ia** no Slack, antes de rodar o script. Sem a chave, o script para e não configura nada. Se você já tiver a variável `OPENROUTER_API_KEY` exportada no seu shell, o script a reaproveita automaticamente (não pede de novo).
 
 Os scripts verificam se o Hermes está instalado e param com instruções caso não esteja — eles não instalam o Hermes por você.
 
@@ -72,6 +72,7 @@ Rodar o script de novo é seguro:
 
 ## FAQ
 
+- **Onde o Hermes guarda a chave OpenRouter:** em `~/.hermes/.env`, na variável `OPENROUTER_API_KEY`. O Hermes só lê credenciais desse arquivo — exportar a variável no `~/.zshrc` (como na Parte 1, para o Claude Code) não é suficiente para o Hermes, mas o script detecta e reaproveita automaticamente se a variável já estiver exportada na sua sessão de terminal.
 - **Não tenho chave OpenRouter:** peça o convite (invite) com o Matheus Cáceres no canal `#construindo-com-ia`. O script exige a chave para continuar.
 - **O script disse que a chave não foi informada, mas eu digitei:** rode um terminal atualizado — versões antigas do script (antes de 13/ago) tinham um bug em que `curl ... | bash` fazia o `read` da chave ler o próprio código do script em vez do teclado. Já corrigido; baixe o comando de novo do início desta página.
 - **O login de um MCP falhou:** rode `hermes mcp login <nome>` (atlassian, granola, slack ou metabase).

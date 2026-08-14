@@ -77,12 +77,19 @@ hermes config set delegation.provider openrouter
 # Chave OpenRouter (obrigatória)
 ENV_FILE="$HERMES_HOME_DIR/.env"
 if ! grep -q '^OPENROUTER_API_KEY=.' "$ENV_FILE" 2>/dev/null; then
-  if [[ "$HAS_TTY" -eq 1 ]]; then
+  # Se a pessoa já exportou OPENROUTER_API_KEY no shell (ex.: seguiu a Parte 1
+  # da doc, para o Claude Code), aproveita e grava no .env — o Hermes só lê
+  # credenciais do .env, nunca do ambiente do shell pai.
+  if [[ -n "${OPENROUTER_API_KEY:-}" ]]; then
+    KEY="$OPENROUTER_API_KEY"
+    say "Encontrei OPENROUTER_API_KEY já exportada no seu shell — reaproveitando."
+  elif [[ "$HAS_TTY" -eq 1 ]]; then
     read -rsp "Cole sua chave OpenRouter (sk-or-...) e pressione Enter: " KEY < /dev/tty
+    echo
   else
     read -rsp "Cole sua chave OpenRouter (sk-or-...) e pressione Enter: " KEY
+    echo
   fi
-  echo
   if [[ -n "${KEY:-}" ]]; then
     echo "OPENROUTER_API_KEY=$KEY" >> "$ENV_FILE"
     say "Chave salva em $ENV_FILE"

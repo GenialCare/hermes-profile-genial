@@ -97,7 +97,15 @@ if (Test-Path $EnvFile) {
     $HasKey = Select-String -Path $EnvFile -Pattern '^OPENROUTER_API_KEY=.' -Quiet -ErrorAction SilentlyContinue
 }
 if (-not $HasKey) {
-    $Key = Read-Host "Cole sua chave OpenRouter (sk-or-...) e pressione Enter"
+    # Se a pessoa ja tem OPENROUTER_API_KEY na variavel de ambiente (ex.: setada
+    # manualmente ou por outra ferramenta), aproveita e grava no .env -- o Hermes
+    # so le credenciais do .env, nunca da variavel de ambiente do processo pai.
+    if ($env:OPENROUTER_API_KEY) {
+        $Key = $env:OPENROUTER_API_KEY
+        Say "Encontrei OPENROUTER_API_KEY ja definida no ambiente - reaproveitando."
+    } else {
+        $Key = Read-Host "Cole sua chave OpenRouter (sk-or-...) e pressione Enter"
+    }
     if ($Key) {
         Add-Content -Path $EnvFile -Value "OPENROUTER_API_KEY=$Key"
         Say "Chave salva em $EnvFile"
