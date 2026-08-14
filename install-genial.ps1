@@ -242,9 +242,28 @@ if (Ask-Yes "Voce usa Google Workspace (Drive, Gmail, Calendar, Sheets, Docs)?")
     }
 
     if (Get-Command gws -ErrorAction SilentlyContinue) {
-        Say "gws instalado. Para autenticar, siga a documentacao no Confluence (Parte 4) -"
-        Write-Host "  la voce encontra o arquivo de credenciais (client_secret.json) para baixar"
-        Write-Host "  e o passo a passo completo de onde salva-lo e como rodar 'gws auth login'."
+        Say "gws instalado. Antes de continuar, autentique-o (isso abre o browser):"
+        Write-Host "  1. Baixe o client_secret.json anexado na documentacao do Confluence (Parte 4)."
+        Write-Host "  2. Salve em $env:USERPROFILE\.config\gws\client_secret.json"
+        Write-Host "  3. Rode: gws auth login"
+        Write-Host ""
+        if (Ask-Yes "Voce ja rodou 'gws auth login' com sucesso e quer que o Hermes configure a skill agora?") {
+            $GwsStatusJson = ""
+            try { $GwsStatusJson = (gws auth status 2>$null) -join "`n" } catch { $GwsStatusJson = "" }
+            $GwsAuthenticated = $GwsStatusJson -match '"auth_method":\s*"(?!none")[^"]+"'
+            if ($GwsAuthenticated) {
+                Say "Configurando a skill do Google Workspace no Hermes (isso pode levar alguns segundos)..."
+                hermes -z "eu ja configurei o gws por fora, entao configure a skill para utilizar essas credenciais no hermes" --yolo --accept-hooks -s google-workspace
+                Say "Pronto. Se algo nao tiver funcionado, abra o Hermes e envie de novo:"
+                Write-Host "  /google-workspace eu ja configurei o gws por fora, entao configure a skill para utilizar essas credenciais no hermes"
+            } else {
+                Warn "O gws ainda nao esta autenticado (gws auth status retornou 'none'). Rode 'gws auth login' primeiro, depois no Hermes envie:"
+                Write-Host "  /google-workspace eu ja configurei o gws por fora, entao configure a skill para utilizar essas credenciais no hermes"
+            }
+        } else {
+            Say "Sem problema. Quando terminar o 'gws auth login', abra o Hermes e envie:"
+            Write-Host "  /google-workspace eu ja configurei o gws por fora, entao configure a skill para utilizar essas credenciais no hermes"
+        }
     }
 } else {
     Say "Pulando Google Workspace."

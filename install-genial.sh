@@ -171,7 +171,7 @@ hermes tools post-setup ddgs || warn "Não consegui instalar o ddgs automaticame
 hermes config set web.search_backend ddgs
 
 # ----------------------------------------------------------------------------
-# 6. Google Workspace (gws) — opcional, sem autenticar automaticamente
+# 6. Google Workspace (gws) — opcional
 # ----------------------------------------------------------------------------
 if ask_yes "Você usa Google Workspace (Drive, Gmail, Calendar, Sheets, Docs)?"; then
   if ! command -v gws >/dev/null 2>&1; then
@@ -189,9 +189,26 @@ if ask_yes "Você usa Google Workspace (Drive, Gmail, Calendar, Sheets, Docs)?";
   fi
 
   if command -v gws >/dev/null 2>&1; then
-    say "gws instalado. Para autenticar, siga a documentação no Confluence (Parte 4) —"
-    echo "  lá você encontra o arquivo de credenciais (client_secret.json) para baixar"
-    echo "  e o passo a passo completo de onde salvá-lo e como rodar 'gws auth login'."
+    say "gws instalado. Antes de continuar, autentique-o (isso abre o browser):"
+    echo "  1. Baixe o client_secret.json anexado na documentação do Confluence (Parte 4)."
+    echo "  2. Salve em ~/.config/gws/client_secret.json"
+    echo "  3. Rode: gws auth login"
+    echo
+    if ask_yes "Você já rodou 'gws auth login' com sucesso e quer que o Hermes configure a skill agora?"; then
+      GWS_AUTH_METHOD=$(gws auth status 2>/dev/null | grep -o '"auth_method": *"[^"]*"' | grep -o '"[^"]*"$' | tr -d '"')
+      if [[ "$GWS_AUTH_METHOD" != "none" && -n "$GWS_AUTH_METHOD" ]]; then
+        say "Configurando a skill do Google Workspace no Hermes (isso pode levar alguns segundos)..."
+        HERMES_HOME="$HERMES_HOME_DIR" hermes -z "eu já configurei o gws por fora, então configure a skill para utilizar essas credenciais no hermes" --yolo --accept-hooks -s google-workspace
+        say "Pronto. Se algo não tiver funcionado, abra o Hermes e envie de novo:"
+        echo "  /google-workspace eu já configurei o gws por fora, então configure a skill para utilizar essas credenciais no hermes"
+      else
+        warn "O gws ainda não está autenticado (gws auth status retornou 'none'). Rode 'gws auth login' primeiro, depois no Hermes envie:"
+        echo "  /google-workspace eu já configurei o gws por fora, então configure a skill para utilizar essas credenciais no hermes"
+      fi
+    else
+      say "Sem problema. Quando terminar o 'gws auth login', abra o Hermes e envie:"
+      echo "  /google-workspace eu já configurei o gws por fora, então configure a skill para utilizar essas credenciais no hermes"
+    fi
   fi
 else
   say "Pulando Google Workspace."

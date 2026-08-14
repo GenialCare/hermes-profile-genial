@@ -46,19 +46,21 @@ iex (irm https://raw.githubusercontent.com/GenialCare/hermes-profile-genial/main
 | MCPs corporativos | Pergunta individual: Atlassian, Slack, Granola, Metabase — só configura e autentica os que você usar |
 | Browser | Conecta via CDP (Chrome com perfil isolado em `~/.hermes/chrome-debug`; login persiste) |
 | Busca | Ativa o DuckDuckGo (`ddgs`) como backend de busca |
-| Google Workspace | Pergunta se você usa; se sim, instala o `gws` CLI (a autenticação é feita à parte — veja abaixo). No Windows, o script encontra o Node.js do Hermes automaticamente mesmo quando ele não está no PATH. |
+| Google Workspace | Pergunta se você usa; se sim, instala o `gws` CLI e orienta o `gws auth login`. Depois de autenticado, o script pode disparar automaticamente a configuração da skill no Hermes. No Windows, o script encontra o Node.js do Hermes automaticamente mesmo quando ele não está no PATH. |
 
 Sua chave OpenRouter é salva em `~/.hermes/.env` (nunca commitada, nunca compartilhada).
 
 ## Google Workspace (Drive, Gmail, Calendar, Sheets, Docs)
 
-O script só instala o `gws` CLI. A autenticação usa um arquivo de credenciais da empresa disponível na documentação interna:
+O script instala o `gws` CLI e orienta a autenticação. O passo de `gws auth login` precisa ser feito por você (abre o browser), mas depois disso o script pode configurar a skill do Hermes automaticamente:
 
 1. Acesse a página do Confluence (Parte 4 — link com a equipe/canal #construindo-com-ia).
 2. Baixe o `client_secret.json` anexado à página.
 3. Salve em `~/.config/gws/client_secret.json` (macOS/Linux) ou `%USERPROFILE%\.config\gws\client_secret.json` (Windows).
 4. Rode `gws auth login`.
-5. No Hermes, envie: `/google-workspace eu já configurei o gws por fora, então configure a skill para utilizar essas credenciais no hermes`.
+5. Quando o script perguntar se você já autenticou, responda "sim" — ele confere com `gws auth status` e, se estiver tudo certo, dispara automaticamente o mesmo comando que você enviaria manualmente ao Hermes (`/google-workspace eu já configurei o gws por fora, então configure a skill para utilizar essas credenciais no hermes`).
+
+Se você preferir fazer esse último passo manualmente (ou se o script não conseguir), basta abrir o Hermes e enviar essa mensagem você mesmo.
 
 ## Idempotência e re-execução
 
