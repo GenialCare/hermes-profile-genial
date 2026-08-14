@@ -86,8 +86,8 @@ hermes config set model.provider openrouter
 hermes config set model.base_url https://openrouter.ai/api/v1
 hermes config set model.api_mode chat_completions
 hermes config set auxiliary.skills_hub.provider openrouter
-hermes config set auxiliary.skills_hub.model deepseek/deepseek-v4-pro
-hermes config set delegation.model deepseek/deepseek-v4-pro
+hermes config set auxiliary.skills_hub.model anthropic/claude-sonnet-5
+hermes config set delegation.model anthropic/claude-sonnet-5
 hermes config set delegation.provider openrouter
 
 # Chave OpenRouter

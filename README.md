@@ -42,7 +42,7 @@ iex (irm https://raw.githubusercontent.com/GenialCare/hermes-profile-genial/main
 | Item | O que acontece |
 | --- | --- |
 | Modelo padrão | `anthropic/claude-sonnet-5` via OpenRouter |
-| Tarefas auxiliares/delegação | `deepseek/deepseek-v4-pro` |
+| Tarefas auxiliares/delegação | `anthropic/claude-sonnet-5` via OpenRouter |
 | MCPs corporativos | Pergunta individual: Atlassian, Slack, Granola, Metabase — só configura e autentica os que você usar |
 | Browser | Conecta via CDP (Chrome com perfil isolado em `~/.hermes/chrome-debug`; login persiste) |
 | Busca | Ativa o DuckDuckGo (`ddgs`) como backend de busca |
