@@ -12,7 +12,9 @@
 #   4. Conecta o browser via CDP (Chrome com perfil isolado, login persiste)
 #   5. Ativa a busca DuckDuckGo
 #   6. Pergunta se voce usa Google Workspace e instala o gws CLI (a autenticacao
-#      e feita separadamente, seguindo a Parte 4 da documentacao no Confluence)
+#      e feita separadamente, seguindo a Parte 4 da documentacao no Confluence).
+#      Se o Node.js do Hermes nao estiver no PATH (comum quando instalado sem
+#      winget), o script encontra e adiciona automaticamente.
 #
 # Idempotente: pode rodar de novo sem duplicar nada.
 # ============================================================================
@@ -27,6 +29,40 @@ function Err($msg)  { Write-Host "`n==> $msg" -ForegroundColor Red }
 function Ask-Yes($question) {
     $resp = Read-Host "$question [s/N]"
     return $resp -match '^(s|sim|y|yes)$'
+}
+
+# O instalador do Hermes no Windows as vezes instala o Node.js portatil em
+# %LOCALAPPDATA%\hermes\node (quando o winget nao esta disponivel) mas NAO
+# adiciona esse diretorio ao PATH. Isso faz com que "npm" nao seja encontrado
+# mesmo com o Node instalado. Esta funcao procura o npm nesse local conhecido
+# e, se encontrar, adiciona ao PATH da sessao atual E ao User PATH persistente
+# (para nao precisar repetir isso a cada novo terminal).
+function Find-NpmPath {
+    if (Get-Command npm -ErrorAction SilentlyContinue) {
+        return (Get-Command npm).Source
+    }
+
+    $Candidates = @(
+        (Join-Path $env:LOCALAPPDATA "hermes\node"),
+        (Join-Path $HermesHomeDir "node")
+    ) | Select-Object -Unique
+
+    foreach ($NodeDir in $Candidates) {
+        $NpmCmd = Join-Path $NodeDir "npm.cmd"
+        if (Test-Path $NpmCmd) {
+            Say "Encontrei o Node.js do Hermes em $NodeDir (nao estava no PATH)."
+            # PATH da sessao atual (para o resto deste script)
+            $env:Path = "$NodeDir;$env:Path"
+            # PATH persistente do usuario (para novos terminais nao precisarem disso de novo)
+            $UserPath = [Environment]::GetEnvironmentVariable("Path", "User")
+            if ($UserPath -notlike "*$NodeDir*") {
+                [Environment]::SetEnvironmentVariable("Path", "$NodeDir;$UserPath", "User")
+                Say "Adicionado $NodeDir ao PATH do usuario (novos terminais ja vao encontrar o npm)."
+            }
+            return $NpmCmd
+        }
+    }
+    return $null
 }
 
 # ----------------------------------------------------------------------------
@@ -194,12 +230,11 @@ hermes config set web.search_backend ddgs
 if (Ask-Yes "Voce usa Google Workspace (Drive, Gmail, Calendar, Sheets, Docs)?") {
     if (-not (Get-Command gws -ErrorAction SilentlyContinue)) {
         Say "Instalando o gws CLI..."
-        # O instalador do Hermes no Windows ja provisiona Node.js, entao o npm
-        # deve estar disponivel sem passo extra.
-        if (Get-Command npm -ErrorAction SilentlyContinue) {
-            npm install -g @googleworkspace/cli
+        $NpmPath = Find-NpmPath
+        if ($NpmPath) {
+            & $NpmPath install -g @googleworkspace/cli
         } else {
-            Warn "npm nao encontrado."
+            Warn "npm nao encontrado (nem no PATH, nem no Node portatil do Hermes)."
             Write-Host "  Baixe o binario em https://github.com/googleworkspace/cli/releases e coloque no PATH."
         }
     } else {

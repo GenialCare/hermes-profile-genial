@@ -46,7 +46,7 @@ iex (irm https://raw.githubusercontent.com/GenialCare/hermes-profile-genial/main
 | MCPs corporativos | Pergunta individual: Atlassian, Slack, Granola, Metabase — só configura e autentica os que você usar |
 | Browser | Conecta via CDP (Chrome com perfil isolado em `~/.hermes/chrome-debug`; login persiste) |
 | Busca | Ativa o DuckDuckGo (`ddgs`) como backend de busca |
-| Google Workspace | Pergunta se você usa; se sim, instala o `gws` CLI (a autenticação é feita à parte — veja abaixo) |
+| Google Workspace | Pergunta se você usa; se sim, instala o `gws` CLI (a autenticação é feita à parte — veja abaixo). No Windows, o script encontra o Node.js do Hermes automaticamente mesmo quando ele não está no PATH. |
 
 Sua chave OpenRouter é salva em `~/.hermes/.env` (nunca commitada, nunca compartilhada).
 
