@@ -119,49 +119,22 @@ if (-not $HasKey) {
 }
 
 # ----------------------------------------------------------------------------
-# 3. MCPs corporativos - um a um, so se a pessoa usar
+# 3. MCPs corporativos - baixa a configuracao pronta e aplica de uma vez
 # ----------------------------------------------------------------------------
-$McpAtlassianUrl = "https://mcp.atlassian.com/v1/mcp"
-$McpGranolaUrl   = "https://mcp.granola.ai/mcp"
-$McpSlackUrl     = "https://mcp.slack.com/mcp"
-$McpMetabaseUrl  = "https://analytics-panel.genialcare.com.br/api/mcp"
+$McpServersUrl = "https://raw.githubusercontent.com/GenialCare/hermes-profile-genial/main/mcp_servers.json"
 
-function Setup-Mcp($Name, $Url) {
-    if (Ask-Yes "Voce usa o MCP ${Name}?") {
-        Say "Configurando MCP $Name..."
-        hermes mcp add $Name --url $Url --auth oauth
-        switch ($Name) {
-            "slack" {
-                # client_id contem um ponto entre digitos (ex.: 123.456) - "hermes config set"
-                # faz parse numerico do valor e TRUNCA para float, corrompendo o client_id.
-                # Editamos o YAML diretamente com o Python do venv do Hermes (sempre tem
-                # PyYAML) para garantir que o valor seja gravado como string.
-                $PyBin = Join-Path $HermesHomeDir "hermes-agent\venv\Scripts\python.exe"
-                if (Test-Path $PyBin) {
-                    $ConfigPath = Join-Path $HermesHomeDir "config.yaml"
-                    $PyScript = @'
-import sys, yaml
-path = sys.argv[1]
-with open(path) as f:
-    data = yaml.safe_load(f) or {}
-data.setdefault("mcp_servers", {}).setdefault("slack", {}).setdefault("oauth", {})["client_id"] = "1451718280373.11571103729251"
-with open(path, "w") as f:
-    yaml.safe_dump(data, f, default_flow_style=False, sort_keys=False, allow_unicode=True)
-'@
-                    $TmpPy = [System.IO.Path]::GetTempFileName() + ".py"
-                    Set-Content -Path $TmpPy -Value $PyScript -Encoding UTF8
-                    & $PyBin $TmpPy $ConfigPath
-                    Remove-Item $TmpPy -Force
-                } else {
-                    Warn "Nao encontrei o Python do Hermes em $PyBin. Configure manualmente em $HermesHomeDir\config.yaml:"
-                    Write-Host "    mcp_servers.slack.oauth.client_id (como STRING, entre aspas) = '1451718280373.11571103729251'"
-                }
-                hermes config set mcp_servers.slack.oauth.redirect_port 8932
-            }
-            "metabase" {
-                hermes config set mcp_servers.metabase.headers.User-Agent 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36'
-            }
-        }
+Say "Baixando a configuracao dos MCPs corporativos..."
+try {
+    $McpServersJson = (Invoke-WebRequest -UseBasicParsing -Uri $McpServersUrl -ErrorAction Stop).Content
+} catch {
+    $McpServersJson = $null
+}
+
+if ($McpServersJson) {
+    hermes config set mcp_servers $McpServersJson
+    Say "MCPs configurados: atlassian, granola, slack, metabase."
+
+    foreach ($Name in @("atlassian", "granola", "slack", "metabase")) {
         Say "Autenticando $Name (abre o browser)..."
         if ($env:SKIP_MCP_LOGIN) {
             Warn "SKIP_MCP_LOGIN=1: pulando o login de $Name (modo de teste)."
@@ -172,16 +145,14 @@ with open(path, "w") as f:
                 Warn "Falha no login de $Name. Repita depois: hermes mcp login $Name"
             }
         }
-    } else {
-        Say "Pulando $Name."
     }
+} else {
+    Warn "Nao consegui baixar $McpServersUrl. Configure os MCPs manualmente depois:"
+    Write-Host "  hermes mcp add atlassian --url https://mcp.atlassian.com/v1/mcp --auth oauth"
+    Write-Host "  hermes mcp add granola --url https://mcp.granola.ai/mcp --auth oauth"
+    Write-Host "  hermes mcp add slack --url https://mcp.slack.com/mcp --auth oauth"
+    Write-Host "  hermes mcp add metabase --url https://analytics-panel.genialcare.com.br/api/mcp --auth oauth"
 }
-
-Say "Vamos configurar os MCPs corporativos. Responda apenas os que voce usa."
-Setup-Mcp "atlassian" $McpAtlassianUrl
-Setup-Mcp "granola"   $McpGranolaUrl
-Setup-Mcp "slack"     $McpSlackUrl
-Setup-Mcp "metabase"  $McpMetabaseUrl
 
 # ----------------------------------------------------------------------------
 # 4. Browser connect (CDP)

@@ -1,0 +1,25 @@
+{
+  "atlassian": {
+    "url": "https://mcp.atlassian.com/v1/mcp",
+    "auth": "oauth"
+  },
+  "granola": {
+    "url": "https://mcp.granola.ai/mcp",
+    "auth": "oauth"
+  },
+  "slack": {
+    "url": "https://mcp.slack.com/mcp",
+    "auth": "oauth",
+    "oauth": {
+      "client_id": "1451718280373.11571103729251",
+      "redirect_port": 8932
+    }
+  },
+  "metabase": {
+    "url": "https://analytics-panel.genialcare.com.br/api/mcp",
+    "auth": "oauth",
+    "headers": {
+      "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36"
+    }
+  }
+}

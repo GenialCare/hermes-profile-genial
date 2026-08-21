@@ -103,62 +103,31 @@ else
 fi
 
 # ----------------------------------------------------------------------------
-# 3. MCPs corporativos — um a um, só se a pessoa usar
+# 3. MCPs corporativos — baixa a configuração pronta e aplica de uma vez
 # ----------------------------------------------------------------------------
-MCP_ATLASSIAN_URL="https://mcp.atlassian.com/v1/mcp"
-MCP_GRANOLA_URL="https://mcp.granola.ai/mcp"
-MCP_SLACK_URL="https://mcp.slack.com/mcp"
-MCP_METABASE_URL="https://analytics-panel.genialcare.com.br/api/mcp"
+MCP_SERVERS_URL="https://raw.githubusercontent.com/GenialCare/hermes-profile-genial/main/mcp_servers.json"
 
-setup_mcp() { # $1=nome $2=url
-  local name="$1" url="$2"
-  if ask_yes "Você usa o MCP $name?"; then
-    say "Configurando MCP $name..."
-    hermes mcp add "$name" --url "$url" --auth oauth
-    case "$name" in
-      slack)
-        # client_id contém um ponto entre dígitos (ex.: 123.456) — "hermes config set"
-        # faz parse numérico do valor e TRUNCA para float, corrompendo o client_id.
-        # Editamos o YAML diretamente com o Python do venv do Hermes (sempre tem
-        # PyYAML, pois é dependência do próprio Hermes) para garantir que o valor
-        # seja gravado como string.
-        PYBIN="$HERMES_HOME_DIR/hermes-agent/venv/bin/python"
-        if [[ -x "$PYBIN" ]]; then
-          "$PYBIN" - "$HERMES_HOME_DIR/config.yaml" <<'PYEOF'
-import sys, yaml
-path = sys.argv[1]
-with open(path) as f:
-    data = yaml.safe_load(f) or {}
-data.setdefault("mcp_servers", {}).setdefault("slack", {}).setdefault("oauth", {})["client_id"] = "1451718280373.11571103729251"
-with open(path, "w") as f:
-    yaml.safe_dump(data, f, default_flow_style=False, sort_keys=False, allow_unicode=True)
-PYEOF
-        else
-          warn "Não encontrei o Python do Hermes em $PYBIN. Configure manualmente em $HERMES_HOME_DIR/config.yaml:"
-          echo "    mcp_servers.slack.oauth.client_id (como STRING, entre aspas) = '1451718280373.11571103729251'"
-        fi
-        hermes config set mcp_servers.slack.oauth.redirect_port 8932
-        ;;
-      metabase)
-        hermes config set mcp_servers.metabase.headers.User-Agent 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36'
-        ;;
-    esac
+say "Baixando a configuração dos MCPs corporativos..."
+MCP_SERVERS_JSON=$(curl -fsSL "$MCP_SERVERS_URL" 2>/dev/null)
+if [[ -n "$MCP_SERVERS_JSON" ]]; then
+  hermes config set mcp_servers "$MCP_SERVERS_JSON"
+  say "MCPs configurados: atlassian, granola, slack, metabase."
+
+  for name in atlassian granola slack metabase; do
     say "Autenticando $name (abre o browser)..."
     if [[ -n "${SKIP_MCP_LOGIN:-}" ]]; then
       warn "SKIP_MCP_LOGIN=1: pulando o login de $name (modo de teste)."
     else
       hermes mcp login "$name" || warn "Falha no login de $name. Repita depois: hermes mcp login $name"
     fi
-  else
-    say "Pulando $name."
-  fi
-}
-
-say "Vamos configurar os MCPs corporativos. Responda apenas os que você usa."
-setup_mcp atlassian "$MCP_ATLASSIAN_URL"
-setup_mcp granola   "$MCP_GRANOLA_URL"
-setup_mcp slack     "$MCP_SLACK_URL"
-setup_mcp metabase  "$MCP_METABASE_URL"
+  done
+else
+  warn "Não consegui baixar $MCP_SERVERS_URL. Configure os MCPs manualmente depois:"
+  echo "  hermes mcp add atlassian --url https://mcp.atlassian.com/v1/mcp --auth oauth"
+  echo "  hermes mcp add granola --url https://mcp.granola.ai/mcp --auth oauth"
+  echo "  hermes mcp add slack --url https://mcp.slack.com/mcp --auth oauth"
+  echo "  hermes mcp add metabase --url https://analytics-panel.genialcare.com.br/api/mcp --auth oauth"
+fi
 
 # ----------------------------------------------------------------------------
 # 4. Browser connect (CDP)
