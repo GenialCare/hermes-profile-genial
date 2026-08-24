@@ -133,19 +133,11 @@ try {
 if ($McpServersJson) {
     hermes config set mcp_servers $McpServersJson
     Say "MCPs configurados: atlassian, granola, slack, metabase."
-
-    foreach ($Name in @("atlassian", "granola", "slack", "metabase")) {
-        Say "Autenticando $Name (abre o browser)..."
-        if ($env:SKIP_MCP_LOGIN) {
-            Warn "SKIP_MCP_LOGIN=1: pulando o login de $Name (modo de teste)."
-        } else {
-            try {
-                hermes mcp login $Name
-            } catch {
-                Warn "Falha no login de $Name. Repita depois: hermes mcp login $Name"
-            }
-        }
-    }
+    Say "Para autenticar cada um (abre o browser), rode quando precisar:"
+    Write-Host "  hermes mcp login atlassian"
+    Write-Host "  hermes mcp login granola"
+    Write-Host "  hermes mcp login slack"
+    Write-Host "  hermes mcp login metabase"
 } else {
     Warn "Nao consegui baixar $McpServersUrl. Configure os MCPs manualmente depois:"
     Write-Host "  hermes mcp add atlassian --url https://mcp.atlassian.com/v1/mcp --auth oauth"

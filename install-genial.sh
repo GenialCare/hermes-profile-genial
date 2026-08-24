@@ -112,15 +112,11 @@ MCP_SERVERS_JSON=$(curl -fsSL "$MCP_SERVERS_URL" 2>/dev/null)
 if [[ -n "$MCP_SERVERS_JSON" ]]; then
   hermes config set mcp_servers "$MCP_SERVERS_JSON"
   say "MCPs configurados: atlassian, granola, slack, metabase."
-
-  for name in atlassian granola slack metabase; do
-    say "Autenticando $name (abre o browser)..."
-    if [[ -n "${SKIP_MCP_LOGIN:-}" ]]; then
-      warn "SKIP_MCP_LOGIN=1: pulando o login de $name (modo de teste)."
-    else
-      hermes mcp login "$name" || warn "Falha no login de $name. Repita depois: hermes mcp login $name"
-    fi
-  done
+  say "Para autenticar cada um (abre o browser), rode quando precisar:"
+  echo "  hermes mcp login atlassian"
+  echo "  hermes mcp login granola"
+  echo "  hermes mcp login slack"
+  echo "  hermes mcp login metabase"
 else
   warn "Não consegui baixar $MCP_SERVERS_URL. Configure os MCPs manualmente depois:"
   echo "  hermes mcp add atlassian --url https://mcp.atlassian.com/v1/mcp --auth oauth"

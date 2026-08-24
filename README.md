@@ -43,7 +43,7 @@ iex (irm https://raw.githubusercontent.com/GenialCare/hermes-profile-genial/main
 | --- | --- |
 | Modelo padrão | `anthropic/claude-sonnet-5` via OpenRouter |
 | Tarefas auxiliares/delegação | `anthropic/claude-sonnet-5` via OpenRouter |
-| MCPs corporativos | Baixa `mcp_servers.json` deste repo e configura os 4 de uma vez (Atlassian, Granola, Slack, Metabase), depois autentica cada um no browser |
+| MCPs corporativos | Baixa `mcp_servers.json` deste repo e configura os 4 de uma vez (Atlassian, Granola, Slack, Metabase). A autenticação (`hermes mcp login`) fica por sua conta, quando for usar cada um |
 | Browser | Conecta via CDP (Chrome com perfil isolado em `~/.hermes/chrome-debug`; login persiste) |
 | Busca | Ativa o DuckDuckGo (`ddgs`) como backend de busca |
 | Google Workspace | Pergunta se você usa; se sim, instala o `gws` CLI e orienta o `gws auth login`. Depois de autenticado, o script pode disparar automaticamente a configuração da skill no Hermes. No Windows, o script encontra o Node.js do Hermes automaticamente mesmo quando ele não está no PATH. |
@@ -88,7 +88,7 @@ Rodar o script de novo é seguro:
 4. A CI valida automaticamente: mensagens de commit e título do PR devem seguir Conventional Commits (`feat, fix, docs, refactor, chore, test, perf, style, build, ci, revert`).
 5. Antes de abrir o PR:
    - `bash -n install-genial.sh` (sintaxe válida)
-   - Teste o fluxo com um `HERMES_HOME` temporário — veja `SKIP_MCP_LOGIN=1` e `SKIP_BROWSER=1` no início do script para pular etapas interativas durante testes
+   - Teste o fluxo com um `HERMES_HOME` temporário — veja `SKIP_BROWSER=1` no início do script para pular a abertura do Chrome durante testes
    - Mudanças em `install-genial.ps1` precisam ser testadas em uma máquina Windows real antes do merge
 
 Veja `AGENTS.md` para as regras completas de contribuição.
