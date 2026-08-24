@@ -43,7 +43,7 @@ iex (irm https://raw.githubusercontent.com/GenialCare/hermes-profile-genial/main
 | --- | --- |
 | Modelo padrão | `anthropic/claude-sonnet-5` via OpenRouter |
 | Tarefas auxiliares/delegação | `anthropic/claude-sonnet-5` via OpenRouter |
-| MCPs corporativos | Baixa `mcp_servers.json` deste repo e configura os 4 de uma vez (Atlassian, Granola, Slack, Metabase). A autenticação (`hermes mcp login`) fica por sua conta, quando for usar cada um |
+| MCPs corporativos | Baixa `mcp_servers.json` deste repo e configura os 4 de uma vez (Atlassian, Granola, Slack, Metabase). **Substitui a seção inteira `mcp_servers` do config** (qualquer MCP extra configurado por fora é removido). A autenticação (`hermes mcp login`) fica por sua conta, quando for usar cada um |
 | Browser | Conecta via CDP (Chrome com perfil isolado em `~/.hermes/chrome-debug`; login persiste) |
 | Busca | Ativa o DuckDuckGo (`ddgs`) como backend de busca |
 | Google Workspace | Pergunta se você usa; se sim, instala o `gws` CLI e orienta o `gws auth login`. Depois de autenticado, o script pode disparar automaticamente a configuração da skill no Hermes. No Windows, o script encontra o Node.js do Hermes automaticamente mesmo quando ele não está no PATH. |

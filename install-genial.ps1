@@ -131,7 +131,7 @@ try {
 }
 
 if ($McpServersJson) {
-    hermes config set mcp_servers $McpServersJson
+    hermes config set --force mcp_servers $McpServersJson
     Say "MCPs configurados: atlassian, granola, slack, metabase."
     Say "Para autenticar cada um (abre o browser), rode quando precisar:"
     Write-Host "  hermes mcp login atlassian"

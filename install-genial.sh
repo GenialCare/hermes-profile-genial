@@ -110,7 +110,7 @@ MCP_SERVERS_URL="https://raw.githubusercontent.com/GenialCare/hermes-profile-gen
 say "Baixando a configuração dos MCPs corporativos..."
 MCP_SERVERS_JSON=$(curl -fsSL "$MCP_SERVERS_URL" 2>/dev/null)
 if [[ -n "$MCP_SERVERS_JSON" ]]; then
-  hermes config set mcp_servers "$MCP_SERVERS_JSON"
+  hermes config set --force mcp_servers "$MCP_SERVERS_JSON"
   say "MCPs configurados: atlassian, granola, slack, metabase."
   say "Para autenticar cada um (abre o browser), rode quando precisar:"
   echo "  hermes mcp login atlassian"
