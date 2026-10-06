@@ -20,7 +20,9 @@
 # ============================================================================
 $ErrorActionPreference = "Stop"
 
-$HermesHomeDir = if ($env:HERMES_HOME) { $env:HERMES_HOME } else { Join-Path $HOME ".hermes" }
+# Valor provisorio ate confirmarmos que o Hermes esta instalado (usado soh
+# pela definicao da funcao abaixo, que so eh CHAMADA depois do passo 1).
+$HermesHomeDir = $null
 
 function Say($msg)  { Write-Host "`n==> $msg" -ForegroundColor Green }
 function Warn($msg) { Write-Host "`n==> $msg" -ForegroundColor Yellow }
@@ -77,6 +79,23 @@ if (-not (Get-Command hermes -ErrorAction SilentlyContinue)) {
 
 Say "Hermes encontrado: $((Get-Command hermes).Source)"
 
+# Fonte de verdade: pergunta ao proprio Hermes onde ele guarda a config,
+# em vez de reimplementar a logica de resolucao de HERMES_HOME (que no
+# Windows NAO eh "$HOME\.hermes" como no macOS/Linux -- o padrao real eh
+# "%LOCALAPPDATA%\hermes" quando a variavel HERMES_HOME nao esta definida).
+# Usar o caminho errado faz o script ler/escrever o .env e o config.yaml
+# num diretorio que o Hermes nunca olha.
+try {
+    $ConfigPath = (hermes config path).Trim()
+    $HermesHomeDir = Split-Path $ConfigPath -Parent
+} catch {
+    $HermesHomeDir = $null
+}
+if (-not $HermesHomeDir) {
+    Err "Nao consegui descobrir onde o Hermes guarda sua configuracao (hermes config path falhou)."
+    exit 1
+}
+
 # ----------------------------------------------------------------------------
 # 2. Provider LLM padrao (Claude Sonnet 5 via OpenRouter)
 # ----------------------------------------------------------------------------
@@ -91,7 +110,11 @@ hermes config set delegation.model anthropic/claude-sonnet-5
 hermes config set delegation.provider openrouter
 
 # Chave OpenRouter
-$EnvFile = Join-Path $HermesHomeDir ".env"
+try {
+    $EnvFile = (hermes config env-path).Trim()
+} catch {
+    $EnvFile = Join-Path $HermesHomeDir ".env"
+}
 $HasKey = $false
 if (Test-Path $EnvFile) {
     $HasKey = Select-String -Path $EnvFile -Pattern '^OPENROUTER_API_KEY=.' -Quiet -ErrorAction SilentlyContinue
@@ -107,6 +130,10 @@ if (-not $HasKey) {
         $Key = Read-Host "Cole sua chave OpenRouter (sk-or-...) e pressione Enter"
     }
     if ($Key) {
+        $EnvDir = Split-Path $EnvFile -Parent
+        if ($EnvDir -and -not (Test-Path $EnvDir)) {
+            New-Item -ItemType Directory -Force -Path $EnvDir | Out-Null
+        }
         Add-Content -Path $EnvFile -Value "OPENROUTER_API_KEY=$Key"
         Say "Chave salva em $EnvFile"
     } else {
@@ -215,7 +242,7 @@ if (Ask-Yes "Voce usa Google Workspace (Drive, Gmail, Calendar, Sheets, Docs)?")
     if (Get-Command gws -ErrorAction SilentlyContinue) {
         Say "gws instalado. Antes de continuar, autentique-o (isso abre o browser):"
         Write-Host "  1. Baixe o client_secret.json anexado na documentacao do Confluence (Parte 4)."
-        Write-Host "  2. Salve em $env:USERPROFILE\.config\gws\client_secret.json"
+        Write-Host "  2. Salve em $(Join-Path $env:USERPROFILE '.config\gws\client_secret.json')"
         Write-Host "  3. Rode: gws auth login"
         Write-Host ""
         if (Ask-Yes "Voce ja rodou 'gws auth login' com sucesso e quer que o Hermes configure a skill agora?") {
